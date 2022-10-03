@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Number guessing game</title>
+    <meta
+      name="description"
+      content="Game made by following the course of mdn web docs on this page : https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/A_first_splash "
+    />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <h1>Number guessing game&nbsp;!</h1>
+
+    <p class="regle">
+      We have selected a random number between 1 and 100. See if you can guess
+      it in 10 turns or fewer. We'll tell you if your guess was too high or too
+      low.
+    </p>
+
+    <div class="form">
+      <div class="sub">
+        <label class="lab" for="guessField">Enter a guess : </label>
+        <input type="text" id="guessField" class="guessField" />
+        <input type="submit" value="Submit" class="guessSubmit" />
+        <div class="resul">
+          <p class="guesses"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="resultParas">
+      <div class="resul" id="resul">
+        <p class="lastResult"></p>
+      </div>
+      <div class="resul">
+        <p class="lowOrHi"></p>
+      </div>
+    </div>
+
+    <script>
+      /*Défini les variables nécessaires au stockage des données que notre programme utilisera
+		Variable = conteneurs de valeurs
+		Variable se crée avec le mot clé let suivi du nom de la variable. 
+		On peut ensuite attribuer une valeur à la variable avec le signe = suivi de la valeur. 
+	*/
+
+      let randomNumber = Math.floor(Math.random() * 100) + 1;
+      let guesses = document.querySelector(".guesses");
+      let lastResult = document.querySelector(".lastResult");
+      let lowOrHi = document.querySelector(".lowOrHi");
+      let guessSubmit = document.querySelector(".guessSubmit");
+      let guessField = document.querySelector(".guessField");
+      let guessCount = 1;
+      let resetButton;
+      guessField.focus();
+
+      function checkGuess() {
+        let userGuess = Number(guessField.value); //déclare une variable nommée userGuess et définie sa valeur par celle qui vient d'être saisie dans le champs de texte. Nous faisons aussi passer cette valeur par la méthode Number(), juste pour nous assurer que la méthode stockée dans userGuess est bien un nombre.
+
+        if (guessCount === 1) {
+          guesses.textContent = "Previous proposals : ";
+        }
+
+        //Bloc de code conditionnel. Permet d'exécuter des instructions de manière séléctive, selon certaines conditons qui sont vraies ou non. Forme plus siple : if (test : si vrai on exécute le code à l'intérieur des accolades. Sinon on passe au code suivant){} Le test véridfie si la variable guessCount est égale à 1 (cad s'il s'agit de la première supposition du joueur). Dans ce cas le text affiché est "proposition précédente"
+
+        guesses.textContent += userGuess + " ";
+        //Ajoute la valeur courante userGuess à la fin du paragraphe guesses, plus un espace vide de sorte qu'il y aura un espace entre chaque supposition faite.
+
+        //Quelques vérifications
+
+        //vérifie si supposition de l'utilisateur est égale au nombre aléatoire randomNumber situé en haut de notre code js. Si c'est le cas : message de félicitations de couleur verte
+
+        if (userGuess === randomNumber) {
+          lastResult.textContent = "Congratulations, you found the number !";
+          lastResult.style.color = "rgb(2, 94, 17)";
+          lowOrHi.textContent = "";
+          setGameOver();
+        }
+
+        //vérifie si l'utilisateur a épuisé toutes ses tentatives. Si c'est le cas : message de fin de partie.
+        else if (guessCount === 10) {
+          lastResult.textContent = "!!! Game Over !!!";
+          lastResult.style.color = "red";
+          setGameOver();
+        }
+
+        //code qui n'est exécuté que si aucun des deux autres tests n'a renvoyé vrai (cad le joueur n'a pas deviné juste mais qu'il lui reste des possibilités). Dans ce cas, on lui dit que sa supposition est mauvaise puis on effectue une autre test conditionnel pour vérifier si elle est supre ou infre à la valeur exacte et affichons un autre message pour indiquer si sa proposition est trop forte ou trop faible.
+        else {
+          lastResult.textContent = "Wrong !";
+          lastResult.style.color = "red";
+          if (userGuess < randomNumber) {
+            lowOrHi.textContent = "The number is too small !";
+          } else if (userGuess > randomNumber) {
+            lowOrHi.textContent = "The numberis too big !";
+          }
+        }
+        //Les trois dernières lignes de la fonction préparent à une nouvelle proposition. Nous ajoutons 1 à la variable guessCount qui décompte les tours (++ est une opération d'incrémentation - ajout de 1) puis effaçons le champ texte du formulaire et lui redonnons le focus pour être prêt pour saisie suivante.
+        guessCount++;
+        guessField.value = "";
+        guessField.focus();
+      }
+
+      //On ajoute un écouteur d'événement au bouton guessSubmit. Méthode qui prend deux valeurs d'entrée  (arguments): le type d'événement que nous écoutons (click) qui est une chaîne de caractère et le code que nous voulons exécuter quand l'événement se produit (la fonction checkGuess)
+      guessSubmit.addEventListener("click", checkGuess);
+
+      /*. deux première lignes désactivent l'entrée de texte et le bouton en définissant leur propriété désactivées à true. Si on ne le fait pas, l'utilisateur pourrait soumettre plus de propositions après la fin du jeu. 
+			
+			trois lignes suivantes génèrent un nouvel élé button avec le libellé "start a new game" et l'ajoute au bas du html existant. 
+		
+			la dernière ligne définit un écouteur d'évé sur ce nouveau bouton : un click sur le bouton déclenchera un appel de la fonction resetGame. Mais il faut définir cette fonction ... 	
+		*/
+      function setGameOver() {
+        guessField.disabled = true;
+        guessSubmit.disabled = true;
+        resetButton = document.createElement("button");
+        resetButton.textContent = "Start new game !";
+        document.body.appendChild(resetButton);
+        resetButton.addEventListener("click", resetGame);
+      }
+
+      /*
+		Bloc qui réinitialise les paramètre du jeu. Permet de. :
+		- remettre le compteur guessCount à 1 ;
+		- effacer tous les paragraphes d'information ; 
+		- supprimer le bouton de réinitialisation de notre code;
+		- activer les éléments de formulaire, vide et met au point le champ de texte, prêt à entrer une nouvelle proposition ; 
+		- supprimer la couleur d'arrière plan du paragraphe lastResult
+		- générer un nouveau nombre aléatoire afin qu'on ne devine plus le même nombre ! 
+		*/
+      function resetGame() {
+        guessCount = 1;
+
+        let resetParas = document.querySelectorAll(".resultParas p");
+        for (let i = 0; i < resetParas.lenght; i++) {
+          resetParas[i].textContent = "";
+        }
+
+        resetButton.parentNode.removeChild(resetButton);
+
+        guessField.disabled = false;
+        guessSubmit.disabled = false;
+        guessField.value = "";
+        guessField.focus();
+        lastResult.style.backgroundColor = "white";
+        randomNumber = Math.floor(Math.random() * 100) + 1;
+      }
+
+      /*CONCLUSION
+  
+  Boucle : permet d'exécuter un morceau de code jusqu'à ce qu'une certaine condition soit remplie. 
+  
+ ex : for (let i = 1 ; i < 21 ; i++) { console.log(i) }
+ 
+ for, trois valeur : 
+ 
+ 1) Valeur de départ. Ici on commence à 1. On peut remplacer i par n'importe quel nom  mais i est utilisé par convention.
+
+ 2) Une condition de fin : i < 21 : la boucle continuera jusqu'à ce que i ne soit plus inférieur à 21. Quand i atteindra ou dépassera 21 la boucle s'arrêtera. 
+ 
+ 3) Un incrémenteur : Nous avons spécifié i++. ce qui signifie "ajouter 1 à i". La boucle sera effectué une fois pour chaque valeur de i, jusqu'à ce que i atteigne une valeur de 21. Dans ce cas, nous imprimons la valeur de i sur la console à chaque itération en utilisant console.log()
+ 
+
+Dans la fonction resetGame
+
+Ce code crée une variable contenant une liste de tous les parag à l'intérieur de <div class= "resultParas" en utilisant la méthode querySelectorAll () puis il passe dans la boucle et pour chacune d'entre eux supprime le contenu d'un texte.
+
+Discussion sur les objets
+
+ajouter 
+guessField.focus(); 
+au-dessous de let resetButton;
+
+Utilise la méthode focus() pour placer automatiquemet le curseur dans le champs du texte <input> dès le chargement de la page. 
+
+En java script, tout est objet. Un objet en java possède des propriétés, chacune définissant une caractéristique.On peut créé nos propre objets mais ici on ne parlera que des objets intégrés que contient notre navigateur. 
+
+On a créé une variable, guessField qui stocke une référence au champs de formulaire de saisie de texte dans notre html (voir déclarations de variables). 
+
+Pour obtenir cette référence, on a utilisé la méthode querySelector() de l'objet document. querySelector () pend une information - un sélecteur CSS qui sélectionne l'élément auquel vous voulez faire référence. 
+
+Parce que guessField contient une réf à à un élé <input> il aura accès à un certain nombre de propriétés (surtout des variables stockées dans des objets, dont certaines ne peuvent pas être modifiés) et des méthodes (esst des fonctions stockées dans des objets). Une méthode dispo pour entrer des éléments est focus. Donc on peut faire : 
+		guessField.focus();
+Jouer avec les objets du navigateur
+  
+  */
+    </script>
+  </body>
+</html>
